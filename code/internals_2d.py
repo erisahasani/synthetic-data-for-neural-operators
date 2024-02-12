@@ -2,6 +2,7 @@ from symengine import symbols, function_symbol, DenseMatrix, sin, cos, exp
 import numpy as np
 import torch
 import multiprocessing
+from tqdm import tqdm
 
 
 
@@ -55,17 +56,22 @@ def divergence_A_nablau(u,elliptic_matrix):
     divA_nablau = (a_x + c_y)*u.diff(x) + (b_x+d_y)*u.diff(y) + a*u.diff(x).diff(x) + d*u.diff(y).diff(y) + (b+c)*u.diff(x).diff(y)
     return (-1)*divA_nablau 
 
+def lower_terms(u,b_term, c_term):
+    x,y = symbols("x y")
+    return b_term[0]*u.diff(x) + b_term[1]*u.diff(y) + c_term*u
 
-def generate_data(dimension, grid_size, truncation_order, elliptic_matrix, nonlinear_term, boundary_condition, idx):
+
+
+def generate_data(length,dimension, grid_size, truncation_order, elliptic_matrix, b_term, c_term, boundary_condition, idx):
     
     x, y = symbols("x,y")
     f = function_symbol("f",x,y)
-    w = symbols("w")
+
     K = np.random.randint(2,truncation_order+1)
     u = get_function(boundary_condition, K)
-    c_u = nonlinear_term.subs({w: u})
+    
 
-    f = divergence_A_nablau(u,elliptic_matrix) + c_u
+    f = divergence_A_nablau(u,elliptic_matrix) + lower_terms(u,b_term,c_term)
 
     # save data points for u and f on the grid (0,1)**2
     cor = np.linspace(0,1,grid_size)
@@ -83,23 +89,25 @@ def generate_data(dimension, grid_size, truncation_order, elliptic_matrix, nonli
 
     input_data = input_data[None,:]
     output_data = output_data[None,:]
-    
 
-    print("progress:", idx)
-    
+    progress_ratio = idx / length
 
+    # Print progress as a percentage
+    print(f"Progress: {progress_ratio:.2%}", end='\r')
+
+    
     return input_data, output_data, idx
 
 
-def generate_and_enqueue_data(x_data: torch.Tensor, y_data: torch.Tensor, dimension: int, grid_size: int, 
-                              truncation_order: int, elliptic_matrix, nonlinear_term, boundary_condition, idx: int):
+def generate_and_enqueue_data(x_data: torch.Tensor, y_data: torch.Tensor, length: int, dimension: int, grid_size: int, 
+                              truncation_order: int, elliptic_matrix, b_term,c_term, boundary_condition, idx: int):
     
-    result1, result2, idx = generate_data(dimension, grid_size, truncation_order, elliptic_matrix, nonlinear_term, boundary_condition, idx)
+    result1, result2, idx = generate_data(length,dimension, grid_size, truncation_order, elliptic_matrix, b_term, c_term, boundary_condition, idx)
     x_data[idx,:,:,:] = result1
     y_data[idx,:,:] = result2
 
 def save_data_in_parallel(length: int, dimension: int, grid_size: int, truncation_order: int, elliptic_matrix,
-                           nonlinear_term, boundary_condition, x_path, y_path):
+                           b_term, c_term, boundary_condition, x_path, y_path):
     multiprocessing.set_start_method('spawn')
     grid_size = grid_size
     length = length
@@ -109,11 +117,11 @@ def save_data_in_parallel(length: int, dimension: int, grid_size: int, truncatio
     x_data.share_memory_()
     y_data.share_memory_()
 
-    args = [(x_data, y_data, dimension, grid_size, truncation_order, elliptic_matrix,nonlinear_term,
+    args = [(x_data, y_data, length, dimension, grid_size, truncation_order, elliptic_matrix, b_term, c_term,
              boundary_condition, idx) for idx in range(length)]
     # torch.set_num_threads(1)
     with multiprocessing.Pool() as pool:
-        pool.starmap(generate_and_enqueue_data, args)
+            pool.starmap(generate_and_enqueue_data, args)
 
     torch.save(x_data, x_path)
     torch.save(y_data, y_path)
@@ -136,7 +144,7 @@ if __name__ == '__main__':
     c = 0 + 0*x + 0*y
     d = 1 + 0*x + 0*y
     c_u = w**2
-    length = 200
+    length = 1000
 
     save_data_in_parallel(
         length = length,
@@ -144,7 +152,8 @@ if __name__ == '__main__':
         grid_size= 85,
         truncation_order = 20,
         elliptic_matrix= [a,b,c,d],
-        nonlinear_term= c_u,
+        b_term = [0,0],
+        c_term = 0,
         boundary_condition= "dirichlet",
         x_path= f'cosine_1_to_20_positive_div_particularA_norm_{length}_x_test.pt',
         y_path= f'cosine_1_to_20_positive_div_particularA_norm_{length}_y_test.pt'
