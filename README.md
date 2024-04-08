@@ -22,17 +22,17 @@ The main difficulty is to construct representative functions $u$ so that they ge
 
 ## Example using FNO 
 
-As a simple example consider the Poisson equation $-\Delta u = f$ in $\Omega:=(0,1)^2$ with zero Dirichlet boundary conditions. For this problem we take $u$ to be the truncated series of the form $$u=\sum_{i=0}^N c_i u_i$$ where $c_i$'s are random coefficients and the $u_i$'s are basis functions for the space of solutions to the problem known as the Sobolev space and is denoted by $H_0^1(\Omega)$. The $u_i$'s are known for square domains and consist of sine functions appropriately scaled.  
+As an example consider the elliptic non-linear equation $-\Delta u + u^2 = f$ in $\Omega:=(0,1)^2$ with zero Dirichlet boundary conditions. For this problem we take $u$ to be the truncated series of the form $$u=\sum_{i,j =1}^N c_{ij} u_{ij}$$ where $c_{ij}$'s are random coefficients drawn from $N(0,1/\sqrt{i^2 + j^2})$ and the $u_{ij}$'s are basis functions for the space of solutions to the problem known as the Sobolev space and is denoted by $H_0^1(\Omega)$. The $u_{ij}$'s are known for square domains and consist of sine functions appropriately scaled.  
 
  
 
-Below we demonstrate the performance of FNO (see [neuraloperator](https://github.com/neuraloperator/neuraloperator)) being trained with $100,000$ training data of sine functions and test on the unseen function $f(x,y)=|x-0.5||y-0.5|$ which isn't even differentiable everywhere on $(0,1)^2$. 
+Below we demonstrate the performance of FNO (see [neuraloperator](https://github.com/neuraloperator/neuraloperator)) being trained with $1,000$, $10,000$ and $100,000$ training data of sine functions and test on the unseen function $f(x,y)=|x-0.5|$ which isn't even differentiable everywhere on $(0,1)^2$. 
 
  
 
 <p float="left"> 
 
-  <img src="pictures/testing5_100000.png" /> 
+  <img src="pictures/function4.png" /> 
 
 </p> 
 
