@@ -26,13 +26,13 @@ As an example consider the elliptic non-linear equation $-\Delta u + u^2 = f$ in
 
  
 
-Below we demonstrate the performance of FNO (see [neuraloperator](https://github.com/neuraloperator/neuraloperator)) being trained with $1,000$, $10,000$ and $100,000$ training data of sine functions and test on the unseen function $f(x,y)=|x-0.5|$ which isn't even differentiable everywhere on $(0,1)^2$. 
+Below we demonstrate the performance of FNO (see [neuraloperator](https://github.com/neuraloperator/neuraloperator)) as we increase the amount of training data from $10k$ to $100k$ and ask for a predicted solution for given $f(x,y)=|x-0.5|-|y-0.5|$ which isn't even differentiable everywhere on $(0,1)^2$. 
 
  
 
-<p float="left"> 
+<p float="center"> 
 
-  <img src="pictures/function4.png" /> 
+  <img src="pictures/output_new49.gif" /> 
 
 </p> 
 
