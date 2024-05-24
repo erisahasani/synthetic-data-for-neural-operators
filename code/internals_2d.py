@@ -2,6 +2,7 @@ from symengine import symbols, function_symbol, DenseMatrix, sin, cos, exp
 import numpy as np
 import torch
 import multiprocessing
+from sympy import  lambdify
 
 
 
@@ -67,19 +68,23 @@ def generate_data(dimension, grid_size, truncation_order, elliptic_matrix, nonli
 
     f = divergence_A_nablau(u,elliptic_matrix) + c_u
 
-    # save data points for u and f on the grid (0,1)**2
-    cor = np.linspace(0,1,grid_size)
-    u_vals = np.zeros((grid_size,grid_size), dtype=float)
-    f_vals = np.zeros((grid_size,grid_size), dtype=float)
+    cor = np.linspace(0, 1, grid_size)
+    X, Y = np.meshgrid(cor, cor)
 
-    for i in range(0,grid_size):
-        for j in range(0,grid_size):
-            u_vals[i][j] = u.subs({x: cor[i],y:cor[j]})
-            f_vals[i][j] = f.subs({x: cor[i],y:cor[j]})
+    X_flat = X.ravel()
+    Y_flat = Y.ravel()
 
+    f_func = lambdify((x, y), f)
+    u_func = lambdify((x, y), u)
 
-    input_data = torch.tensor(f_vals)
-    output_data = torch.tensor(u_vals)
+    f_flat = f_func(X_flat, Y_flat)
+    u_flat = u_func(X_flat, Y_flat)
+
+    f_reshaped = np.array(f_flat).reshape(X.shape)
+    u_reshaped = np.array(u_flat).reshape(X.shape)
+
+    input_data = torch.tensor(f_reshaped)
+    output_data = torch.tensor(u_reshaped)
 
     input_data = input_data[None,:]
     output_data = output_data[None,:]

@@ -31,8 +31,7 @@ if __name__ == '__main__':
     print(x_test.shape)
     print(y_test.shape)  
 
-    print(x_test.shape)
-    for test in range(0,100):
+    for test in range(0,len(x_test)):
         plot_data_2d(x_test[test,0,:,:],f'input function f',f'input_output')
         sleep(1)
         plot_data_2d(y_test[test,:,:],f'output function u',f'input_output')

@@ -22,10 +22,10 @@ class DataGenerator:
         self.y_save_path = y_save_path
     
         if not self.x_save_path:
-            self.x_save_path = f"synthetic_data_{self.data_points}_x.pt"
+            self.x_save_path = f"synthetic_data_{boundary_condition}_{self.data_points}_x.pt"
 
         if not self.y_save_path:
-            self.y_save_path = f"synthetic_data_{self.data_points}_y.pt"
+            self.y_save_path = f"synthetic_data_{boundary_condition}_{self.data_points}_y.pt"
     
         if not self.elliptic_matrix:
             x,y = symbols("x y")
@@ -60,4 +60,4 @@ class DataGenerator:
         )
 
 if __name__ == '__main__':
-    DataGenerator().generate()
+    DataGenerator(data_points=1000).generate()
