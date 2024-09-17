@@ -12,7 +12,7 @@ def generate_sine_2d(K):
     u = 0*x +0
     for i in range(1,K):
         for j in range(1,K):
-            u = u + np.random.normal(0,1/(i+j))*sin(np.pi*i*x)*sin(np.pi*j*y)/np.sqrt(((np.pi*i)**2+(np.pi*j)**2))
+            u = u + np.random.normal(0,1/np.sqrt(i+j))*sin(np.pi*i*x)*sin(np.pi*j*y)/np.sqrt(((np.pi*i)**2+(np.pi*j)**2))
     return u
 
 def generate_cosine_2d(K):
@@ -21,7 +21,7 @@ def generate_cosine_2d(K):
     u = 0*x +0
     for i in range(1,K):
         for j in range(1,K):
-            u = u + np.random.normal(0,1/(i+j))*cos(np.pi*i*x)*cos(np.pi*j*y)/np.sqrt(((np.pi*i)**2+(np.pi*j)**2))
+            u = u + np.random.normal(0,1/np.sqrt(i+j))*cos(np.pi*i*x)*cos(np.pi*j*y)/np.sqrt(((np.pi*i)**2+(np.pi*j)**2))
     return u
 
 def get_function(boundary_condition, K):

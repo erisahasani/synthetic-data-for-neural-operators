@@ -8,7 +8,7 @@ class DataGenerator:
     A is a 2x2 matrix and c(u) is some nonlinear term in u and boundary condition is either "dirichlet" or "neumann".
     """
 
-    def __init__(self, data_points: int = 25, dimension: int = 2, grid_size: int =85, truncation_order = 20, elliptic_matrix = None, 
+    def __init__(self, data_points: int = 25, dimension: int = 2, grid_size: int =100, truncation_order = 20, elliptic_matrix = None, 
                  nonlinear_term = None, boundary_condition: str = "dirichlet", x_save_path = None, y_save_path = None) -> None:
         
         self.data_points = data_points
@@ -22,10 +22,10 @@ class DataGenerator:
         self.y_save_path = y_save_path
     
         if not self.x_save_path:
-            self.x_save_path = f"synthetic_data_{boundary_condition}_{self.data_points}_x.pt"
+            self.x_save_path = f"../synthetic_data_{boundary_condition}_{self.data_points}_x2.pt"
 
         if not self.y_save_path:
-            self.y_save_path = f"synthetic_data_{boundary_condition}_{self.data_points}_y.pt"
+            self.y_save_path = f"../synthetic_data_{boundary_condition}_{self.data_points}_y2.pt"
     
         if not self.elliptic_matrix:
             x,y = symbols("x y")
@@ -40,12 +40,12 @@ class DataGenerator:
 
             self.elliptic_matrix = [a,b,c,d]
 
-        if not self.nonlinear_term:
+        if self.nonlinear_term is None:
             w = symbols("w")
             c_u = function_symbol("c_u",w)
             c_u = w**2
             self.nonlinear_term = c_u
-        
+
     def generate(self) -> None:
         internals_2d.save_data_in_parallel(
             self.data_points, 
@@ -59,5 +59,10 @@ class DataGenerator:
             self.y_save_path
         )
 
+#define non-linear term to be function of u but 0 times it
+w = symbols("w")
+nonlin = function_symbol("c_u",w)
+nonlin = 0 * w
+
 if __name__ == '__main__':
-    DataGenerator(data_points=1000).generate()
+    DataGenerator(data_points=100,grid_size=32,nonlinear_term=nonlin).generate()
